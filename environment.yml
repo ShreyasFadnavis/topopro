@@ -1,0 +1,9 @@
+name: TopoPro
+
+dependencies:
+- dipy
+- numpy
+- scipy
+- ipython
+- matplotlib
+- jupyter
