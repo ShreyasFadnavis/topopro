@@ -1,5 +1,4 @@
 """ Classes and functions for fitting ivim model """
-
 import numpy as np
 from shgo import shgo
 from dipy.reconst.base import ReconstModel
