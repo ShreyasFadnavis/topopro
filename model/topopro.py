@@ -13,7 +13,7 @@ BOUNDS = ([0., 0., 0.], [.89, .89, .89])
 
 class IvimModelTopoPro(ReconstModel):
 
-    def __init__(self, gtab, bounds=None):
+    def __init__(self, gtab, bounds=None, hom_restart=False):
         r""" Initialize an IvimModelTP class.
 
         The IVIM model assumes that biological tissue includes a volume
@@ -51,9 +51,10 @@ class IvimModelTopoPro(ReconstModel):
         self.yhat_diffusion = np.zeros(self.bvals.shape[0])
         self.exp_phi = np.zeros((self.bvals.shape[0], 2))
         self.bounds = bounds or BOUNDS
+        self.hom_restart = hom_restart
 
     @multi_voxel_fit
-    def fit(self, data, bounds_de=None):
+    def fit(self, data, bounds_sh=None):
         r""" Fit method of the IvimModelTopoPro model class
 
         Separable Homological Optimization for IVIM [1]_.
@@ -106,15 +107,15 @@ class IvimModelTopoPro(ReconstModel):
         # Essentially this changes the constraints of the problem
         # depending on which sub-domain of physically realizable
         # functions we are in add more explanation.
-        if x_f[0] >= 0.4:
-            x_f[0] = 0.001
-            x_f[1] = 0.001
-            # Relax the bounds and restart SHGO
-            bounds_de = np.array([(5e-7, 0.1), (1e-8, 0.011)])
-            res_one = shgo(self.stoc_search_cost, bounds_de, iters=3,
-                           minimizer_kwargs=minimizer_kwargs_pre,
-                           sampling_method='simplicial',
-                           args=(data,))
+        if self.hom_restart is True:
+            if x_f[0] >= 0.4:
+                x_f[0] = 0.0
+                # Relax the bounds and restart SHGO
+                bounds_de = np.array([(5e-7, 0.1), (1e-8, 0.011)])
+                res_one = shgo(self.stoc_search_cost, bounds_de, iters=3,
+                               minimizer_kwargs=minimizer_kwargs_pre,
+                               sampling_method='simplicial',
+                               args=(data,))
 
         # Setting up the bounds for SHGO
         bounds_simpl = [(x_f[0] - x_f[0]*.99, x_f[0] + x_f[0]*.99),
