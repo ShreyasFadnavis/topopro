@@ -14,6 +14,9 @@ The notebook [IVIM TopoPro Example](notebooks/ivim_topopro_example.ipynb) shows 
 
 The notebook [IVIM hyperct Example](notebooks/gen_obj_surf.ipynb) shows how `hyperct` can be used to visualize subspaces of optimizations problems and their homology. This dependency of TopoPro is used in the algorithm during optimization to allow TopoPro to understand the optimization sub-problem as solver progress is made. 
 
+<img src="https://github.com/ShreyasFadnavis/topopro/blob/master/figs/bimodal_sh.png" title="TopoPro Comparison">
+
+
 ### Fitting with TopoPro
 ```
 topopro = IvimModelTopoPro(gtab)
