@@ -1,6 +1,6 @@
 """ Classes and functions for fitting ivim model """
 import numpy as np
-from shgo import shgo
+from scipy.optimize import shgo
 from dipy.reconst.base import ReconstModel
 from dipy.reconst.multi_voxel import multi_voxel_fit
 from dipy.utils.optpkg import optional_package
@@ -86,15 +86,18 @@ class IvimModelTopoPro(ReconstModel):
         """
 
         data_max = data.max()
-        data = data / data_max
+        if data_max == 0:
+            pass
+        else:
+            data = data / data_max
         b = self.bvals
 
         # Setting up the bounds for level-1 SHGO
         bounds_sh = np.array([(0.005, 0.01), (10 ** -4, 0.001)])
 
         # Optimizer #1: SHGO
-        minimizer_kwargs_pre = {'options': {f'ftol': 1e-4},
-                                'method': 'SLSQP'}
+#        minimizer_kwargs_pre = {'options': {f'ftol': 1e-4},
+#                                'method': 'SLSQP'}
         res_one = shgo(self.stoc_search_cost, bounds_sh, iters=2,
                        sampling_method='simplicial', args=(data,))
         x = res_one.x
@@ -107,15 +110,15 @@ class IvimModelTopoPro(ReconstModel):
         # Essentially this changes the constraints of the problem
         # depending on which sub-domain of physically realizable
         # functions we are in add more explanation.
-        if self.hom_restart is True:
-            if x_f[0] >= 0.4:
-                x_f[0] = 0.0
-                # Relax the bounds and restart SHGO
-                bounds_de = np.array([(5e-7, 0.1), (1e-8, 0.011)])
-                res_one = shgo(self.stoc_search_cost, bounds_de, iters=3,
-                               minimizer_kwargs=minimizer_kwargs_pre,
-                               sampling_method='simplicial',
-                               args=(data,))
+#        if self.hom_restart is True:
+#            if x_f[0] >= 2:
+#                x_f[0] = 0.0
+#                # Relax the bounds and restart SHGO
+#                bounds_de = np.array([(5e-7, 0.1), (1e-8, 0.011)])
+#                res_one = shgo(self.stoc_search_cost, bounds_de, iters=3,
+#                               minimizer_kwargs=minimizer_kwargs_pre,
+#                               sampling_method='simplicial',
+#                               args=(data,))
 
         # Setting up the bounds for SHGO
         bounds_simpl = [(x_f[0] - x_f[0]*.99, x_f[0] + x_f[0]*.99),
@@ -164,6 +167,7 @@ class IvimModelTopoPro(ReconstModel):
 
         """
         phi = self.phi(x)
+
         return self.ivim_shgo(phi, signal)
 
     def ivim_shgo(self, phi, signal):
@@ -287,11 +291,11 @@ class IvimModelTopoPro(ReconstModel):
         phi = self.phi(x)
 
         # Implements an inverse penalty function
-        if (x_f[2] <= 0.00125):  # Implement no D* constraints at high D
-            return np.sum((np.dot(phi, f1) - signal) ** 2) + \
-                           1e4*(x_f[0]**2) + 1e4*(x_f[1]**2)
-        else:
-            return np.sum((np.dot(phi, f1) - signal) ** 2)
+#        if (x_f[2] <= 0.00125):  # Implement no D* constraints at high D
+#            return np.sum((np.dot(phi, f1) - signal) ** 2) + \
+#                           1e4*(x_f[0]**2) + 1e4*(x_f[1]**2)
+#        else:
+        return np.sum((np.dot(phi, f1) - signal) ** 2)
 
     def x_f_to_x_and_f(self, x_f):
         """
