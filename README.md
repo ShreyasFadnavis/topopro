@@ -1,7 +1,7 @@
 # Separable homological optimization for intravoxel incoherent motion: TopoPro
 
 This repo demonstrates a framework (TopoPro) for estimating the IVIM model via data Diffusion MRI,
-as described in the paper: `Separable homological optimization for intravoxel incoherent motion`. It is a topological method for solving the bi-exponential IVIM microstructural model through the lens of a separable inverse problem formulation.
+as described in the paper: `Bifurcated Topological Optimization for IVIM`. It is a topological method for solving the bi-exponential IVIM microstructural model through the lens of a separable inverse problem formulation.
 
 ## Images
 
